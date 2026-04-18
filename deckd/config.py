@@ -17,6 +17,11 @@ class GeneralConfig:
 @dataclass(frozen=True)
 class P2PoolConfig:
     unit: str
+    # Filenames under images.dir; alternated while unit ActiveState is "deactivating"
+    deactivating_image_a: str
+    deactivating_image_b: str
+    # Seconds between frame flips (2 FPS ⇒ 0.5)
+    deactivating_blink_interval_sec: float
 
 
 @dataclass(frozen=True)
@@ -78,6 +83,28 @@ def _require_str(section: Mapping[str, Any], key: str) -> str:
     return value
 
 
+def _optional_str(section: Mapping[str, Any], key: str, default: str) -> str:
+    if key not in section:
+        return default
+    value = section[key]
+    if not isinstance(value, str):
+        raise ValueError(f"{key!r} must be a string")
+    return value
+
+
+def _optional_float(section: Mapping[str, Any], key: str, default: float) -> float:
+    if key not in section:
+        return default
+    value = section[key]
+    if isinstance(value, bool):
+        raise ValueError(f"{key!r} must be a number")
+    if isinstance(value, int):
+        return float(value)
+    if isinstance(value, float):
+        return value
+    raise ValueError(f"{key!r} must be a number")
+
+
 def load_config(path: Path) -> AppConfig:
     """Parse *path* as TOML and return a validated :class:`AppConfig`."""
     raw = path.read_bytes()
@@ -95,6 +122,11 @@ def load_config(path: Path) -> AppConfig:
     unit = _require_str(p2pool, "unit")
     if not unit.endswith(".service"):
         raise ValueError('p2pool.unit must end with ".service"')
+    deactivating_a = _optional_str(p2pool, "deactivating_image_a", "monero_deactivating_a.png")
+    deactivating_b = _optional_str(p2pool, "deactivating_image_b", "monero_deactivating_b.png")
+    blink_interval = _optional_float(p2pool, "deactivating_blink_interval_sec", 0.5)
+    if blink_interval <= 0:
+        raise ValueError("p2pool.deactivating_blink_interval_sec must be > 0")
 
     server = _require_str(onair, "server").rstrip("/")
     register_interval = _require_float(onair, "register_interval")
@@ -105,7 +137,12 @@ def load_config(path: Path) -> AppConfig:
 
     return AppConfig(
         general=GeneralConfig(listen_port=listen_port),
-        p2pool=P2PoolConfig(unit=unit),
+        p2pool=P2PoolConfig(
+            unit=unit,
+            deactivating_image_a=deactivating_a,
+            deactivating_image_b=deactivating_b,
+            deactivating_blink_interval_sec=blink_interval,
+        ),
         onair=OnAirConfig(server=server, register_interval=register_interval),
         images=ImagesConfig(dir=images_dir),
     )

@@ -52,7 +52,7 @@ async def _async_main(cfg: AppConfig) -> None:
 
     p2pool = P2PoolButton(
         0,
-        cfg.p2pool.unit,
+        cfg.p2pool,
         cfg.images.dir,
         loop=loop,
         refresh_deck=deck_runtime.refresh,
