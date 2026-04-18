@@ -7,6 +7,4 @@ __pycache__/
 dist/
 build/
 *.egg-info/
-images/*.png
-!images/README.md
 .DS_Store
