@@ -4,7 +4,9 @@
 
 Implement the `deckd` Stream Deck daemon per `VISION.md`, with systemd deployment support and uv-managed dependencies. Target server: Ubuntu 22.04, `p2pool.service`, Elgato Stream Deck Mini `0fd9:0063`.
 
-**Complexity:** Level 3
+**Complexity:** Level 2 (rework — see "Rework — PR feedback triage" section below)
+
+_Original task complexity: Level 3 — see phase log._
 
 ## Phase log
 
