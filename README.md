@@ -1,6 +1,6 @@
 # deckd
 
-Headless Python daemon for an **Elgato Stream Deck Mini**: physical toggles for `p2pool.service` (systemd via D-Bus) and **OnAir** (HTTP sign + PUT), as described in [VISION.md](VISION.md).
+Headless Python daemon for an **Elgato Stream Deck Mini**: physical toggles for `p2pool.service` (systemd via D-Bus) and **OnAir** (HTTP sign + PUT)
 
 > ⚠️ **Just for Me**
 > 
