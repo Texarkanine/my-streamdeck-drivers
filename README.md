@@ -20,7 +20,7 @@ Headless Python daemon for an **Elgato Stream Deck Mini**: physical toggles for 
    - `listen_port` — port for the embedded OnAir callback HTTP server (must be reachable from the OnAir server for sign registration).
    - `onair.server` — base URL of your OnAir server.
    - `images.dir` — directory containing the PNG assets (see `images/README.md`).
-   - `[p2pool].deactivating_*` — filenames and blink interval while `p2pool.service` is in **deactivating** (defaults in `deckd.toml.example`).
+   - `[p2pool].deactivating_*` — filenames and blink interval while `p2pool.service` is in **deactivating** (defaults in `deckd.toml.example`). A **second press** while still deactivating sends **`KillUnit`** (default signal **9 / SIGKILL**) — it does **not** start or restart the service.
 
 5. **Images** — add `monero_online.png`, `monero_offline.png`, the two deactivating blink frames (`deactivating_image_a` / `b` in config), and `onair_on.png`, `onair_off.png` (80×80 recommended).
 

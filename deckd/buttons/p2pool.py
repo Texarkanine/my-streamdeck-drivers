@@ -13,6 +13,8 @@ from deckd.systemd_unit import (
     get_manager_interface,
     get_unit_active_state,
     get_unit_object_path,
+    p2pool_press_kind,
+    try_kill_unit,
     try_start_stop,
 )
 
@@ -41,6 +43,7 @@ class P2PoolButton(DeckButton):
         self._deactivating_a = p2pool.deactivating_image_a
         self._deactivating_b = p2pool.deactivating_image_b
         self._blink_interval_sec = p2pool.deactivating_blink_interval_sec
+        self._escalate_signal = p2pool.deactivating_escalate_signal
         self._loop = loop
         self._refresh_deck = refresh_deck
         self._bus_holder = bus_holder
@@ -100,8 +103,15 @@ class P2PoolButton(DeckButton):
             manager = await get_manager_interface(bus)
             unit_path = await get_unit_object_path(manager, self._unit)
             state = await get_unit_active_state(bus, unit_path)
-            want_active = state.lower() != "active"
-            await try_start_stop(bus, self._unit, want_active)
+            kind = p2pool_press_kind(state)
+            if kind == "stop":
+                await try_start_stop(bus, self._unit, want_active=False)
+            elif kind == "start":
+                await try_start_stop(bus, self._unit, want_active=True)
+            elif kind == "kill":
+                await try_kill_unit(bus, self._unit, self._escalate_signal)
+            else:
+                logger.info("P2Pool: ignoring key press while unit ActiveState is %s", state)
 
         fut = asyncio.run_coroutine_threadsafe(_toggle(), self._loop)
 

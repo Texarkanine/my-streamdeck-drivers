@@ -34,6 +34,7 @@ dir = "/opt/deckd/images"
     assert cfg.p2pool.deactivating_image_a == "monero_deactivating_a.png"
     assert cfg.p2pool.deactivating_image_b == "monero_deactivating_b.png"
     assert cfg.p2pool.deactivating_blink_interval_sec == 0.5
+    assert cfg.p2pool.deactivating_escalate_signal == 9
     assert cfg.onair.server == "http://localhost:1920"
     assert cfg.onair.register_interval == 60.0
     assert cfg.images.dir == Path("/opt/deckd/images")

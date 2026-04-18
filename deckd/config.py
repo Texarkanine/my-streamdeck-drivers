@@ -22,6 +22,8 @@ class P2PoolConfig:
     deactivating_image_b: str
     # Seconds between frame flips (2 FPS ⇒ 0.5)
     deactivating_blink_interval_sec: float
+    # SIG number for second press while stuck deactivating (9 = SIGKILL)
+    deactivating_escalate_signal: int
 
 
 @dataclass(frozen=True)
@@ -92,6 +94,15 @@ def _optional_str(section: Mapping[str, Any], key: str, default: str) -> str:
     return value
 
 
+def _optional_int(section: Mapping[str, Any], key: str, default: int) -> int:
+    if key not in section:
+        return default
+    value = section[key]
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise ValueError(f"{key!r} must be an integer")
+    return value
+
+
 def _optional_float(section: Mapping[str, Any], key: str, default: float) -> float:
     if key not in section:
         return default
@@ -127,6 +138,9 @@ def load_config(path: Path) -> AppConfig:
     blink_interval = _optional_float(p2pool, "deactivating_blink_interval_sec", 0.5)
     if blink_interval <= 0:
         raise ValueError("p2pool.deactivating_blink_interval_sec must be > 0")
+    escalate_sig = _optional_int(p2pool, "deactivating_escalate_signal", 9)
+    if escalate_sig < 1 or escalate_sig > 64:
+        raise ValueError("p2pool.deactivating_escalate_signal must be between 1 and 64")
 
     server = _require_str(onair, "server").rstrip("/")
     register_interval = _require_float(onair, "register_interval")
@@ -142,6 +156,7 @@ def load_config(path: Path) -> AppConfig:
             deactivating_image_a=deactivating_a,
             deactivating_image_b=deactivating_b,
             deactivating_blink_interval_sec=blink_interval,
+            deactivating_escalate_signal=escalate_sig,
         ),
         onair=OnAirConfig(server=server, register_interval=register_interval),
         images=ImagesConfig(dir=images_dir),

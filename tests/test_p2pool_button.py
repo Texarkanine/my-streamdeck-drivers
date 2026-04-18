@@ -17,6 +17,7 @@ def test_get_image_path_states() -> None:
         deactivating_image_a="a.png",
         deactivating_image_b="b.png",
         deactivating_blink_interval_sec=0.5,
+        deactivating_escalate_signal=9,
     )
     btn = P2PoolButton(
         0,

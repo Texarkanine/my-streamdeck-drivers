@@ -5,12 +5,32 @@ from __future__ import annotations
 import asyncio
 import logging
 import subprocess
-from typing import Any, Callable, Coroutine
+from typing import Any, Callable, Coroutine, Literal
 
 from dbus_next import BusType
 from dbus_next.aio import MessageBus
 
 logger = logging.getLogger(__name__)
+
+P2PoolPressKind = Literal["stop", "start", "kill", "noop"]
+
+
+def p2pool_press_kind(active_state: str) -> P2PoolPressKind:
+    """Map systemd ``ActiveState`` to what the P2Pool key should do on press.
+
+    * ``active`` → graceful stop (``StopUnit``).
+    * ``deactivating`` → escalation (``KillUnit``, never start/restart).
+    * ``inactive`` / ``failed`` → start.
+    * ``activating`` and other values → no-op (avoids accidental start while coming up).
+    """
+    s = active_state.lower()
+    if s == "active":
+        return "stop"
+    if s == "deactivating":
+        return "kill"
+    if s in ("inactive", "failed"):
+        return "start"
+    return "noop"
 
 
 async def connect_system_bus() -> MessageBus:
@@ -47,6 +67,27 @@ async def start_unit(bus: MessageBus, unit_name: str) -> None:
 async def stop_unit(bus: MessageBus, unit_name: str) -> None:
     manager = await get_manager_interface(bus)
     await manager.call_stop_unit(unit_name, "replace")
+
+
+async def kill_unit(bus: MessageBus, unit_name: str, signal: int) -> None:
+    """Send *signal* to processes in the unit cgroup (systemd ``KillUnit``)."""
+    manager = await get_manager_interface(bus)
+    await manager.call_kill_unit(unit_name, "all", signal)
+
+
+def systemctl_kill(unit: str, signal: int) -> None:
+    subprocess.run(["systemctl", "kill", "-s", str(signal), unit], check=True)
+
+
+async def try_kill_unit(bus: MessageBus | None, unit: str, signal: int) -> None:
+    """``KillUnit`` over D-Bus, falling back to ``systemctl kill``."""
+    if bus is not None:
+        try:
+            await kill_unit(bus, unit, signal)
+            return
+        except Exception:
+            logger.exception("D-Bus KillUnit failed; trying systemctl kill fallback")
+    systemctl_kill(unit, signal)
 
 
 def systemctl_start(unit: str) -> None:
