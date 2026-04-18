@@ -2,8 +2,8 @@
 
 **Current Task:** Implement `deckd` per VISION + systemd deployment
 
-**Phase:** BUILD — complete (QA pending)
+**Phase:** QA — PASS (operator confirmed working on target server kinglear)
 
-**What Was Done:** Implemented `deckd` package (config, P2Pool D-Bus + fallback, OnAir HTTP sign + client, Stream Deck wiring, `__main__`), `install/` systemd + udev, `deckd.toml.example`, `images/README.md`, root `README.md`, `uv.lock`. Tests: `tests/test_config.py`, `tests/test_http_server.py`. Target server: Ubuntu 22.04 / Python 3.10 noted in `.python-version` and README.
+**What Was Done:** Implemented `deckd` package (config, P2Pool D-Bus + fallback with deactivating-blink + optional KillUnit escalation, OnAir HTTP sign + client, Stream Deck wiring, `__main__`), `install/{systemd,udev,polkit}`, `deckd.toml.example`, `images/README.md`, root `README.md`, `uv.lock`. Tests: `test_config.py`, `test_http_server.py`, `test_onair_client.py`, `test_p2pool_button.py`, `test_p2pool_press_kind.py` — 16/16 passing. QA fixed one stale comment in `install/polkit/99-deckd-p2pool.rules` that referenced the pre-reorg install path and a nonexistent `use_sudo_for_systemctl` / sudoers example.
 
-**Next Step:** Operator runs `/niko-qa` or manual validation on kinglear; hardware/integration testing only on device.
+**Next Step:** Reflect phase (Level 3 workflow).

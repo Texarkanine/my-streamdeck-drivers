@@ -103,4 +103,4 @@ flowchart LR
 - [x] Technology validation complete
 - [x] Preflight
 - [x] Build
-- [ ] QA
+- [x] QA (PASS — operator confirmed working on target server; one trivial doc fix applied)

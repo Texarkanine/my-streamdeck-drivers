@@ -12,3 +12,4 @@ Implement the `deckd` Stream Deck daemon per `VISION.md`, with systemd deploymen
 - **Plan** — Complete (see `tasks.md`).
 - **Preflight** — PASS.
 - **Build** — Implemented Python package `deckd/`, tests, `uv.lock`, install artifacts, README; pytest passing locally.
+- **QA** — PASS. Operator confirmed `deckd.service` working on target server (kinglear). One trivial doc fix: stale install path + nonexistent `use_sudo_for_systemctl`/sudoers reference in `install/polkit/99-deckd-p2pool.rules`. 16/16 tests passing.

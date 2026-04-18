@@ -1,0 +1,6 @@
+PASS
+Date: 2026-04-18
+Task: deckd-initial (Level 3)
+Findings: 1 trivial fix applied (stale polkit rule comment referencing removed install path and nonexistent sudoers/config option). No substantive defects.
+Build result: operator-confirmed working on target server (kinglear).
+Tests: 16/16 passing.
