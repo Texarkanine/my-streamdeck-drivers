@@ -56,3 +56,5 @@ Triaged PR feedback on the shipped `deckd-initial` build and accepted a targeted
 1. `uv run pytest` still green (16/16 + any new tests added during rework).
 2. Behavior on the target host (`kinglear`) unchanged for the happy path: P2Pool toggle, OnAir sign registration, OnAir PUT round-trip, deactivating blink + escalation all still work.
 3. No new runtime dependencies.
+
+**Rework delivery status:** `deckd-rework-pr1` completed and archived 2026-04-18 — `memory-bank/archive/enhancements/20260418-deckd-rework-pr1.md`.
