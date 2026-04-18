@@ -48,7 +48,19 @@ Headless Python daemon for an **Elgato Stream Deck Mini**: physical toggles for 
    - Config at `/etc/deckd/deckd.toml`
    - A dedicated Unix user `deckd` in group `plugdev` (create with `useradd` / `usermod` as needed)
 
-8. **Permissions** — toggling `p2pool.service` requires authorization for `StartUnit`/`StopUnit` on the system bus. If D-Bus calls are denied, check polkit rules or use a documented `systemctl` NOPASSWD/sudo fallback (see [VISION.md](VISION.md) open questions).
+8. **P2Pool / polkit** — an unprivileged user cannot start or stop system units by default; you will see `Interactive authentication required` and a polkit prompt in logs. To allow **only** `p2pool.service` for the user that runs `deckd`:
+
+   - Edit `install/50-deckd-p2pool.rules` and set `subject.user` to that account (e.g. `homeserv`).
+   - Install and reload polkit:
+
+     ```bash
+     sudo cp install/50-deckd-p2pool.rules /etc/polkit-1/rules.d/
+     sudo systemctl restart polkit
+     ```
+
+   That grants D-Bus `StartUnit`/`StopUnit` for that unit only (not other services). If your polkit/systemd build uses a different detail key, run `pkaction --verbose` and adjust the rule; group-based checks (`subject.isInGroup("…")`) are also possible.
+
+   **Alternative:** `sudoers` with `NOPASSWD` for `/bin/systemctl start p2pool.service` and `… stop …` — only if you prefer sudo over polkit; the current code calls `systemctl` without `sudo`, so polkit is the usual fix.
 
 ## Run without systemd (debug)
 
