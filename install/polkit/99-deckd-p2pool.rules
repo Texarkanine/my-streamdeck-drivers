@@ -1,0 +1,23 @@
+// Polkit: allow deckd's Unix user to call systemd StartUnit/StopUnit over D-Bus without a password.
+// For polkit >= 0.106 only (JavaScript rules backend). See README for the polkit <= 0.105 .pkla variant.
+//
+// Install:
+//   sudo cp install/polkit/99-deckd-p2pool.rules /etc/polkit-1/rules.d/
+//   sudo systemctl restart polkit
+//
+// IMPORTANT: Edit subject.user to match the account that runs deckd (e.g. deckd).
+//
+// Why not filter by unit? systemd does not always pass action.lookup("unit") to polkit in a way
+// that matches a string compare, so unit-specific rules often never return YES and auth still fails.
+// This rule allows manage-units for that user for ANY unit; see README for ways to narrow the scope
+// (group membership via subject.isInGroup, or action.lookup("unit") where supported).
+
+polkit.addRule(function (action, subject) {
+    if (action.id != "org.freedesktop.systemd1.manage-units") {
+        return undefined;
+    }
+    if (subject.user != "deckd") {
+        return undefined;
+    }
+    return polkit.Result.YES;
+});

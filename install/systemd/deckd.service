@@ -1,0 +1,22 @@
+[Unit]
+Description=Stream Deck daemon (deckd)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=deckd
+Group=deckd
+WorkingDirectory=/opt/deckd/deckd
+
+# Install: copy repo to WorkingDirectory, run `uv sync --frozen` there once.
+# Adjust --config to your real path.
+ExecStart=/usr/bin/uv run --directory /opt/deckd/deckd deckd --config /etc/deckd/deckd.toml
+Restart=always
+RestartSec=5
+
+# USB HID access (with udev GROUP=plugdev) and evdev if needed
+SupplementaryGroups=plugdev input
+
+[Install]
+WantedBy=multi-user.target

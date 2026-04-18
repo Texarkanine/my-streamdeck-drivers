@@ -1,0 +1,6 @@
+[Allow deckd to manage systemd units]
+Identity=unix-user:deckd
+Action=org.freedesktop.systemd1.manage-units
+ResultAny=yes
+ResultInactive=yes
+ResultActive=yes

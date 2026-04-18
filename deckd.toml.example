@@ -1,0 +1,26 @@
+[general]
+# Embedded HTTP listener for OnAir sign registration (binds 0.0.0.0)
+listen_port = 5111
+
+[p2pool]
+unit = "p2pool.service"
+# Blink between these two PNGs while systemd reports ActiveState "deactivating"
+deactivating_image_a = "monero_deactivating_a.png"
+deactivating_image_b = "monero_deactivating_b.png"
+# Seconds between A/B swaps (2 FPS = 0.5)
+deactivating_blink_interval_sec = 0.5
+# Second press while "deactivating":
+# 15 - SIGTERM (please stop now)
+# 9 - SIGKILL (forcibly stop)
+# omit/comment - repeated presses do not escalate
+deactivating_escalate_signal = 15
+
+[onair]
+# Base URL of the OnAir server (no trailing slash)
+server = "http://127.0.0.1:1920"
+# Seconds between re-register POSTs (0 = register once at startup)
+register_interval = 60
+
+[images]
+# Directory with monero_online.png, monero_offline.png, onair_on.png, onair_off.png
+dir = "/opt/deckd/images"

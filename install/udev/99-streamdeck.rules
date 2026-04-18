@@ -1,0 +1,2 @@
+# Elgato Stream Deck Mini (USB-A and common USB-C revisions use 0fd9:0063 — verify with lsusb)
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0fd9", ATTRS{idProduct}=="0063", MODE="0660", GROUP="plugdev"

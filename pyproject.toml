@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "deckd"
+version = "0.1.0"
+description = "Headless Stream Deck daemon for service control"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "streamdeck>=0.9.5",
+    "requests>=2.31",
+    "dbus-next>=0.2.3",
+    "flask>=2.3",
+    "tomli>=2.0.1",
+    "pillow>=9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-asyncio>=0.23",
+]
+
+[project.scripts]
+deckd = "deckd.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["deckd"]
+
+[tool.uv]
+# Prefer PyPI when the environment adds extra indexes (e.g. PyTorch wheels) that pin stale transitive packages.
+index-strategy = "unsafe-best-match"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
