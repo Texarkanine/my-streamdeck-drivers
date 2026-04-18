@@ -26,7 +26,7 @@ Operators of a headless Linux server who want physical USB buttons (Elgato Strea
 ## Key Constraints
 
 - Headless Linux only; no Windows/macOS support in scope.
-- Python 3.11+, `uv` for environment and locking; no pipenv/poetry.
+- Python floor pinned in `pyproject.toml` (Ubuntu 22.04 system Python), `uv` for environment and locking; no pipenv/poetry.
 - No Node/Electron/Companion/OpenDeck for this stack.
 - User-supplied PNGs (e.g. 80×80 for Mini); not checked into the repo by default.
 - Real hardware integration and permission models must be validated on the target host (USB IDs, polkit, service user).
