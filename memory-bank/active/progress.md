@@ -36,3 +36,8 @@ Explicitly rejected (and why, for the record):
 - `key_callback` generic threadpool dispatcher — wrong layer; fix #3 at the button.
 - Shared-secret / allowlist auth on `http_server.py` PUT — OnAir protocol has no such credential; adding one breaks interop for no benefit on a trusted LAN host.
 - `techContext.md` "Python 3.11+" fix — already resolved during the reflect-phase persistent-file reconciliation.
+
+## Rework phase log
+
+- **Plan** — Complete. 11 ordered steps in `tasks.md`; 7 testable behaviors across two new test files (`tests/test_onair_button.py`, `tests/test_systemd_unit.py`); no new deps.
+- **Preflight** — PASS (with advisory). Convention / dependency / conflict / completeness all clean. Advisory: a shared `run_coroutine_threadsafe + done-callback logger` helper would DRY the soon-to-be-duplicated pattern across `P2PoolButton` and `OnAirButton` — not mandated (two sites; surgical diff preferred on a rework PR).

@@ -1,0 +1,8 @@
+PASS (with advisory)
+
+Task: deckd-rework-pr1
+Checks: convention ✓ | dependency ✓ | conflict ✓ | completeness ✓
+Advisory: shared `schedule_and_log(coro, loop, desc)` helper could DRY the
+`run_coroutine_threadsafe + done-callback` pattern now present in
+`P2PoolButton.on_press` and (newly) `OnAirButton.on_press`. Not mandated —
+only two call sites; inlined pattern keeps the PR-feedback diff surgical.

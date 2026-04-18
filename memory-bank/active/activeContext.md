@@ -2,8 +2,10 @@
 
 **Current Task:** deckd-rework-pr1 — PR-feedback hardening rework on `deckd-initial`
 
-**Phase:** COMPLEXITY-ANALYSIS - COMPLETE
+**Phase:** PREFLIGHT - PASS (with advisory)
 
-**What Was Done:** Triaged 11 PR comments against the working code. Accepted 6 targeted fixes (loopback bind, two off-loop/off-HID HTTP dispatches, systemctl-to-async, `Manager.Subscribe()` + done-callback, regex escape). Rejected 5 as not-worth-it-here (LAN opt-in, per-button toggle lock, NaN/Inf guard, key_callback generic dispatcher, HTTP PUT shared-secret). One was already resolved by the reflect-phase reconciliation (techContext "Python 3.11+"). Classified as **Level 2** — multi-component bug fix / correctness hardening, no architecture or contract changes, no unknowns.
+**What Was Done:** Validated the 11-step plan against the codebase. Verified (a) `OnAirButton` constructor change only touches `__main__.py` call site and matches the existing `P2PoolButton(*, loop=…)` convention; (b) sync `systemctl_{kill,start,stop}` has no callers outside `try_{kill_unit,start_stop}` inside `systemd_unit.py`, and the two `try_*` helpers are already `async` with callers in `p2pool.py` already using `await`; (c) `call_subscribe()` follows dbus-next's CamelCase→`call_<snake_case>` convention used elsewhere (`call_start_unit`, `call_kill_unit`); (d) docs sweep targets are accurate (README step 4 still says "reachable from the OnAir server"; `systemPatterns.md` concurrency section is the right home for the new sentence). No conflicts, no missing touchpoints.
 
-**Next Step:** Load Level 2 workflow and run the Plan phase.
+**Advisory (not blocking):** the `run_coroutine_threadsafe + done-callback logger` pattern will now live in two buttons. A `deckd/asyncutil.py::schedule_and_log(coro, loop, desc)` helper would DRY it, but two call sites is a thin justification on a rework PR; keeping the pattern inlined preserves review surgery.
+
+**Next Step:** Build (`niko-build` skill) — start with TDD step 1 (OnAirButton `loop` parameter).
