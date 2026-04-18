@@ -45,7 +45,7 @@ class OnAirButton(DeckButton):
 
         fut = asyncio.run_coroutine_threadsafe(_dispatch(new_state), self._loop)
 
-        def _log_exc(f: Any) -> None:
+        def _log_exc(f: asyncio.Future[Any]) -> None:
             exc = f.exception()
             if exc is not None:
                 logger.exception("OnAir toggle failed", exc_info=exc)

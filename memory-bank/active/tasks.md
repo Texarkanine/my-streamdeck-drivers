@@ -253,4 +253,4 @@ No new dependencies. No build-tool changes. Only stdlib (`asyncio`,
 - [x] Technology validation complete
 - [x] Preflight (PASS with advisory)
 - [x] Build
-- [ ] QA
+- [x] QA (PASS — 25/25 tests, lint clean, one stylistic nit normalized)
