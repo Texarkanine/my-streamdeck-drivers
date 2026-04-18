@@ -2,6 +2,12 @@
 
 Headless Python daemon for an **Elgato Stream Deck Mini**: physical toggles for `p2pool.service` (systemd via D-Bus) and **OnAir** (HTTP sign + PUT), as described in [VISION.md](VISION.md).
 
+> ⚠️ **Just for Me**
+> 
+> This was built to work on *my* machine where I have two specific things - a systemd unit for `p2pool`, and my [onair](https://github.com/Texarkanine/onair) system.
+> It would technically work for you with onair + any number of systemd units... with heavy modification.
+> This is a "reference example."
+
 ## Quick start (target Linux host)
 
 1. **Clone** this repository on the machine that has the Stream Deck plugged in.
