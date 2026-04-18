@@ -126,5 +126,5 @@ dir = "/x"
 """.strip(),
         encoding="utf-8",
     )
-    with pytest.raises(ValueError, match=".service"):
+    with pytest.raises(ValueError, match=r"\.service"):
         load_config(path)

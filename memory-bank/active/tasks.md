@@ -231,6 +231,20 @@ No new dependencies. No build-tool changes. Only stdlib (`asyncio`,
   capture is shaky, fall back to a module-level logger handler attached
   in the test and assert on records directly.
 
+## Build Progress
+
+- [x] Step 1: `OnAirButton` accepts keyword-only `loop`
+- [x] Step 2: `__main__` passes `loop=` into `OnAirButton`
+- [x] Step 3: `OnAirButton.on_press` uses `run_coroutine_threadsafe` + `asyncio.to_thread` (TDD — 2 new tests)
+- [x] Step 4: `register_sign` dispatched via `asyncio.to_thread`
+- [x] Step 5: Flask bound to `127.0.0.1`
+- [x] Step 6: `systemctl_{kill,start,stop}` are now `async` over `asyncio.to_thread`; `try_*` callers `await` them (TDD — 6 new tests incl. caller-path coverage)
+- [x] Step 7: `Manager.Subscribe()` called once at startup (wrapped in try/except, logs and continues)
+- [x] Step 8: `subscribe_active_state_changes` attaches a done-callback that logs handler exceptions via `logger.exception` (TDD — 1 new test)
+- [x] Step 9: `tests/test_config.py` regex escaped (`.service` → `\.service`)
+- [x] Step 10: `README.md` + `memory-bank/systemPatterns.md` updated
+- [x] Step 11: Full test suite green — 25/25 (16 pre-existing + 9 new)
+
 ## Status
 
 - [x] Initialization complete
@@ -238,5 +252,5 @@ No new dependencies. No build-tool changes. Only stdlib (`asyncio`,
 - [x] Implementation plan complete
 - [x] Technology validation complete
 - [x] Preflight (PASS with advisory)
-- [ ] Build
+- [x] Build
 - [ ] QA

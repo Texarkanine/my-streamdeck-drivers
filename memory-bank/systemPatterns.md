@@ -25,6 +25,16 @@ needs to call D-Bus) is forwarded to the main loop via
 dumb threads" shape is the mental model — deviating from it (e.g.
 calling D-Bus directly from the StreamDeck thread) will break things.
 
+Every blocking I/O call is bounced off its caller: synchronous HTTP
+(`requests` in `register_sign` / `put_state`) and `subprocess.run`
+(`systemctl_{kill,start,stop}`) are wrapped in `asyncio.to_thread(...)`
+when called from the asyncio loop, and button press handlers that
+originate on the HID callback thread forward to the loop via
+`asyncio.run_coroutine_threadsafe` before doing any async work. This
+keeps the event loop responsive to D-Bus `PropertiesChanged` signals and
+keeps one stalled HTTP/`systemctl` call from blocking subsequent
+keypresses.
+
 Package layout lives under `deckd/`: `buttons/` for per-key behavior,
 `deck_runtime.py` for device wiring, `http_server.py` for the sign
 endpoint, `systemd_unit.py` for D-Bus + fallback, `onair_client.py` for

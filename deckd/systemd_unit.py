@@ -75,8 +75,10 @@ async def kill_unit(bus: MessageBus, unit_name: str, signal: int) -> None:
     await manager.call_kill_unit(unit_name, "all", signal)
 
 
-def systemctl_kill(unit: str, signal: int) -> None:
-    subprocess.run(["systemctl", "kill", "-s", str(signal), unit], check=True)
+async def systemctl_kill(unit: str, signal: int) -> None:
+    await asyncio.to_thread(
+        subprocess.run, ["systemctl", "kill", "-s", str(signal), unit], check=True
+    )
 
 
 async def try_kill_unit(bus: MessageBus | None, unit: str, signal: int) -> None:
@@ -87,15 +89,15 @@ async def try_kill_unit(bus: MessageBus | None, unit: str, signal: int) -> None:
             return
         except Exception:
             logger.exception("D-Bus KillUnit failed; trying systemctl kill fallback")
-    systemctl_kill(unit, signal)
+    await systemctl_kill(unit, signal)
 
 
-def systemctl_start(unit: str) -> None:
-    subprocess.run(["systemctl", "start", unit], check=True)
+async def systemctl_start(unit: str) -> None:
+    await asyncio.to_thread(subprocess.run, ["systemctl", "start", unit], check=True)
 
 
-def systemctl_stop(unit: str) -> None:
-    subprocess.run(["systemctl", "stop", unit], check=True)
+async def systemctl_stop(unit: str) -> None:
+    await asyncio.to_thread(subprocess.run, ["systemctl", "stop", unit], check=True)
 
 
 async def try_start_stop(bus: MessageBus | None, unit: str, want_active: bool) -> None:
@@ -110,9 +112,9 @@ async def try_start_stop(bus: MessageBus | None, unit: str, want_active: bool) -
         except Exception:
             logger.exception("D-Bus StartUnit/StopUnit failed; trying systemctl fallback")
     if want_active:
-        systemctl_start(unit)
+        await systemctl_start(unit)
     else:
-        systemctl_stop(unit)
+        await systemctl_stop(unit)
 
 
 def _variant_to_str(value: Any) -> str:
@@ -132,6 +134,11 @@ async def subscribe_active_state_changes(
     obj = bus.get_proxy_object("org.freedesktop.systemd1", unit_path, intro)
     prop = obj.get_interface("org.freedesktop.DBus.Properties")
 
+    def _log_task_exc(task: asyncio.Task[None]) -> None:
+        exc = task.exception()
+        if exc is not None:
+            logger.exception("ActiveState change handler failed", exc_info=exc)
+
     def _handler(interface: str, changed: dict[str, Any], _invalidated: list[str]) -> None:
         if interface != "org.freedesktop.systemd1.Unit":
             return
@@ -139,6 +146,7 @@ async def subscribe_active_state_changes(
             return
         value = _variant_to_str(changed["ActiveState"])
         loop = asyncio.get_running_loop()
-        loop.create_task(on_change(value))
+        task = loop.create_task(on_change(value))
+        task.add_done_callback(_log_task_exc)
 
     prop.on_properties_changed(_handler)  # type: ignore[attr-defined]

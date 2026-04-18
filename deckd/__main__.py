@@ -58,7 +58,7 @@ async def _async_main(cfg: AppConfig) -> None:
         refresh_deck=deck_runtime.refresh,
         bus_holder=bus_holder,
     )
-    onair = OnAirButton(1, cfg.images.dir, cfg.onair.server, onair_state.get)
+    onair = OnAirButton(1, cfg.images.dir, cfg.onair.server, onair_state.get, loop=loop)
     blanks = [BlankButton(k) for k in range(2, 6)]
     deck_runtime.set_buttons([p2pool, onair, *blanks])
 
@@ -67,11 +67,15 @@ async def _async_main(cfg: AppConfig) -> None:
         deck_runtime.refresh(onair)
 
     app = create_onair_app(onair_state.get, apply_state)
-    run_flask_in_thread(app, "0.0.0.0", cfg.general.listen_port)
+    run_flask_in_thread(app, "127.0.0.1", cfg.general.listen_port)
 
     bus = await connect_system_bus()
     bus_holder[0] = bus
     manager = await get_manager_interface(bus)
+    try:
+        await manager.call_subscribe()
+    except Exception:
+        logger.exception("Manager.Subscribe failed; continuing")
     unit_path = await get_unit_object_path(manager, cfg.p2pool.unit)
     active = await get_unit_active_state(bus, unit_path)
     p2pool.set_active_state(active)
@@ -88,7 +92,7 @@ async def _async_main(cfg: AppConfig) -> None:
         while True:
             try:
                 callback_base = f"http://{guess_primary_ipv4()}:{cfg.general.listen_port}"
-                register_sign(cfg.onair.server, callback_base)
+                await asyncio.to_thread(register_sign, cfg.onair.server, callback_base)
             except Exception:
                 logger.exception("OnAir register failed")
             if cfg.onair.register_interval <= 0:

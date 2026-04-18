@@ -17,7 +17,7 @@ Headless Python daemon for an **Elgato Stream Deck Mini**: physical toggles for 
 
 4. **Config** — copy `deckd.toml.example` to a path you will pass to `--config`, e.g. `/etc/deckd/deckd.toml`, and edit:
 
-   - `listen_port` — port for the embedded OnAir callback HTTP server (must be reachable from the OnAir server for sign registration).
+   - `listen_port` — port for the embedded OnAir callback HTTP server. `deckd` binds this to **loopback (`127.0.0.1`) only**; the OnAir server is assumed to run on the same host (co-located deployment).
    - `onair.server` — base URL of your OnAir server.
    - `images.dir` — directory containing the PNG assets (see `images/README.md`).
    - `[p2pool].deactivating_*` — filenames and blink interval while `p2pool.service` is in **deactivating** (defaults in `deckd.toml.example`). Extra presses while still deactivating are **ignored** by default. Set optional **`deactivating_escalate_signal`** (1–64, e.g. **9** for SIGKILL) to send **`KillUnit`** on repeat presses; that path still does **not** start or restart the service.
