@@ -43,7 +43,7 @@ class P2PoolButton(DeckButton):
         self._deactivating_a = p2pool.deactivating_image_a
         self._deactivating_b = p2pool.deactivating_image_b
         self._blink_interval_sec = p2pool.deactivating_blink_interval_sec
-        self._escalate_signal = p2pool.deactivating_escalate_signal
+        self._escalate_signal: int | None = p2pool.deactivating_escalate_signal
         self._loop = loop
         self._refresh_deck = refresh_deck
         self._bus_holder = bus_holder
@@ -109,7 +109,12 @@ class P2PoolButton(DeckButton):
             elif kind == "start":
                 await try_start_stop(bus, self._unit, want_active=True)
             elif kind == "kill":
-                await try_kill_unit(bus, self._unit, self._escalate_signal)
+                if self._escalate_signal is None:
+                    logger.info(
+                        "P2Pool: ignoring key press in deactivating (no deactivating_escalate_signal)"
+                    )
+                else:
+                    await try_kill_unit(bus, self._unit, self._escalate_signal)
             else:
                 logger.info("P2Pool: ignoring key press while unit ActiveState is %s", state)
 

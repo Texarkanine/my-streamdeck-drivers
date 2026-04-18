@@ -19,7 +19,7 @@ def p2pool_press_kind(active_state: str) -> P2PoolPressKind:
     """Map systemd ``ActiveState`` to what the P2Pool key should do on press.
 
     * ``active`` → graceful stop (``StopUnit``).
-    * ``deactivating`` → escalation (``KillUnit``, never start/restart).
+    * ``deactivating`` → escalation (``KillUnit``) only if configured; never start/restart.
     * ``inactive`` / ``failed`` → start.
     * ``activating`` and other values → no-op (avoids accidental start while coming up).
     """

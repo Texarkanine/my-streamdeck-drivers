@@ -9,8 +9,8 @@ deactivating_image_a = "monero_deactivating_a.png"
 deactivating_image_b = "monero_deactivating_b.png"
 # Seconds between A/B swaps (2 FPS = 0.5)
 deactivating_blink_interval_sec = 0.5
-# Second press while "deactivating": systemd KillUnit (9 = SIGKILL). Does not start/restart.
-deactivating_escalate_signal = 9
+# Optional: extra presses while "deactivating" call systemd KillUnit with this signal (e.g. 9 = SIGKILL, 15 = SIGTERM).
+# Omit this key for no escalation — repeats do nothing until the unit reaches inactive/active.
 
 [onair]
 # Base URL of the OnAir server (no trailing slash)

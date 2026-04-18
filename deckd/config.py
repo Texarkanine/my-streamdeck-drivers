@@ -22,8 +22,9 @@ class P2PoolConfig:
     deactivating_image_b: str
     # Seconds between frame flips (2 FPS ⇒ 0.5)
     deactivating_blink_interval_sec: float
-    # SIG number for second press while stuck deactivating (9 = SIGKILL)
-    deactivating_escalate_signal: int
+    # If set, second+ press while ``deactivating`` sends ``KillUnit`` with this signal (e.g. 9).
+    # If omitted / null, extra presses do nothing (no escalation).
+    deactivating_escalate_signal: int | None
 
 
 @dataclass(frozen=True)
@@ -103,6 +104,18 @@ def _optional_int(section: Mapping[str, Any], key: str, default: int) -> int:
     return value
 
 
+def _optional_int_or_none(section: Mapping[str, Any], key: str) -> int | None:
+    """Absent key → ``None``. Present value must be an integer 1–64 (Unix signal number)."""
+    if key not in section:
+        return None
+    value = section[key]
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise ValueError(f"{key!r} must be an integer")
+    if value < 1 or value > 64:
+        raise ValueError(f"{key!r} must be between 1 and 64")
+    return value
+
+
 def _optional_float(section: Mapping[str, Any], key: str, default: float) -> float:
     if key not in section:
         return default
@@ -138,9 +151,7 @@ def load_config(path: Path) -> AppConfig:
     blink_interval = _optional_float(p2pool, "deactivating_blink_interval_sec", 0.5)
     if blink_interval <= 0:
         raise ValueError("p2pool.deactivating_blink_interval_sec must be > 0")
-    escalate_sig = _optional_int(p2pool, "deactivating_escalate_signal", 9)
-    if escalate_sig < 1 or escalate_sig > 64:
-        raise ValueError("p2pool.deactivating_escalate_signal must be between 1 and 64")
+    escalate_sig = _optional_int_or_none(p2pool, "deactivating_escalate_signal")
 
     server = _require_str(onair, "server").rstrip("/")
     register_interval = _require_float(onair, "register_interval")
