@@ -11,7 +11,6 @@ from pathlib import Path
 from deckd.config import AppConfig, load_config
 from deckd.deck_runtime import BlankButton, DeckRuntime, run_deck_forever
 from deckd.http_server import create_onair_app, run_flask_in_thread
-from deckd.netutil import guess_primary_ipv4
 from deckd.onair_client import register_sign
 from deckd.systemd_unit import (
     connect_system_bus,
@@ -91,7 +90,7 @@ async def _async_main(cfg: AppConfig) -> None:
     async def register_loop() -> None:
         while True:
             try:
-                callback_base = f"http://{guess_primary_ipv4()}:{cfg.general.listen_port}"
+                callback_base = f"http://127.0.0.1:{cfg.general.listen_port}"
                 await asyncio.to_thread(register_sign, cfg.onair.server, callback_base)
             except Exception:
                 logger.exception("OnAir register failed")
