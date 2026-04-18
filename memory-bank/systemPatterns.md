@@ -55,6 +55,20 @@ a configured signal (e.g. 15 = SIGTERM, 9 = SIGKILL). `StartUnit` is
 `deckd/buttons/p2pool.py`, `deckd/systemd_unit.py`. Any future
 service-toggle button should assume the same state-machine shape.
 
+## `Manager.Subscribe()` is required for spec-correct PropertiesChanged delivery
+
+systemd's D-Bus contract says clients must call
+`org.freedesktop.systemd1.Manager.Subscribe` once per connection
+before they can rely on `PropertiesChanged` signals for units.
+`dbus-next`'s `call_properties_changed` subscription can appear to
+"just work" without it (systemd emits signals incidentally on unit
+interaction), which is how deckd's first revision got away without
+it. deckd now calls `manager.call_subscribe()` once at startup in
+`deckd/__main__.py` (wrapped in `try/except` — a failure here is
+logged and tolerated since the incidental path remains). Any future
+feature that subscribes to systemd unit properties should assume
+`Subscribe` has been called.
+
 ## Polkit authorization is user-scoped, not unit-scoped
 
 `action.lookup("unit")` in polkit rules does not return a matchable

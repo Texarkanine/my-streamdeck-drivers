@@ -2,7 +2,7 @@
 
 **Current Task:** deckd-rework-pr1 — PR-feedback hardening rework on `deckd-initial`
 
-**Phase:** BUILD - PASS
+**Phase:** REFLECT - Complete (QA: PASS; Build: PASS)
 
 ## What Was Done
 
@@ -30,6 +30,10 @@ Applied all 11 planned steps. Every blocking call (`requests`, `subprocess.run`)
 
 None. All 11 steps landed as specified.
 
+## Reflection Outcome
+
+See `memory-bank/active/reflection/reflection-deckd-rework-pr1.md`. Persistent-file reconciliation: `systemPatterns.md` gained (a) a concurrency paragraph about every-blocking-call bouncing via `asyncio.to_thread` / `asyncio.run_coroutine_threadsafe` and (b) a new pattern section on `Manager.Subscribe()` being required for spec-correct `PropertiesChanged` delivery. `productContext.md` and `techContext.md` unchanged — no audience/use-case shift, no new deps or tools.
+
 ## Next Step
 
-QA (`niko-qa` skill).
+Archive (`niko-archive` via `/niko-archive`). Reflection is a terminal autonomous node for Level 2; operator input required to proceed.
