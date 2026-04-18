@@ -19,12 +19,9 @@ def register_sign(onair_server_base: str, callback_base: str) -> Any:
     url = f"{onair_server_base.rstrip('/')}/onair/api/v1/register"
     callback = f"{callback_base.rstrip('/')}/onair/api/v1/state"
     try:
-        response = requests.post(
-            url,
-            data=callback.encode("utf-8"),
-            headers={"Content-Type": "text/plain; charset=utf-8"},
-            timeout=10,
-        )
+        # Server parses the body with json.loads(); a raw URL is not valid JSON.
+        # Sending a JSON string value matches typical Flask/OnAir register handlers.
+        response = requests.post(url, json=callback, timeout=10)
         response.raise_for_status()
         if not response.content:
             return None
