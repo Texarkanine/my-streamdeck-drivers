@@ -1,0 +1,8 @@
+PASS
+
+## Preflight summary
+
+- Greenfield repo; plan aligns with `systemPatterns.md` and `VISION.md`.
+- Conventions: Python package `deckd/`, tests under `tests/`, deploy under `install/`.
+- Requirements mapped to concrete modules and test files.
+- Advisory: verify polkit/`systemctl` permissions on first deploy (documented in README).
