@@ -14,3 +14,23 @@ Implement the `deckd` Stream Deck daemon per `VISION.md`, with systemd deploymen
 - **Build** — Implemented Python package `deckd/`, tests, `uv.lock`, install artifacts, README; pytest passing locally.
 - **QA** — PASS. Operator confirmed `deckd.service` working on target server (kinglear). One trivial doc fix: stale install path + nonexistent `use_sudo_for_systemctl`/sudoers reference in `install/polkit/99-deckd-p2pool.rules`. 16/16 tests passing.
 - **Reflect** — Complete. See `memory-bank/active/reflection/reflection-deckd-initial.md`. Persistent files reconciled: `productContext.md`, `techContext.md`, `systemPatterns.md`.
+
+## Rework — PR feedback triage
+
+Operator-approved rework scope (after triaging 11 PR comments; see chat). Accepted fixes only:
+
+1. **`__main__.py`** — bind Flask to loopback (`127.0.0.1`) by default. deckd and the OnAir server run on the same host, so loopback is correct and closes unnecessary LAN exposure.
+2. **`__main__.py` `register_loop`** — `register_sign` uses blocking `requests` with a 10s timeout; calling it inline stalls the asyncio loop (delays D-Bus `PropertiesChanged` delivery). Move to `asyncio.to_thread(...)`.
+3. **`buttons/onair.py` `on_press`** — blocking `put_state` currently runs on the HID callback thread; a stalled OnAir server blocks *all* further keypresses for up to 10s. Mirror `p2pool.py`'s `asyncio.run_coroutine_threadsafe` pattern.
+4. **`systemd_unit.py` systemctl fallback** — `subprocess.run` inside async functions blocks the event loop. Wrap the three `systemctl_*` helpers in `asyncio.to_thread(...)` and make them async; update callers.
+5. **`systemd_unit.py` D-Bus subscription** — add a one-time `Manager.Subscribe()` call at startup so `PropertiesChanged` delivery is guaranteed-correct per systemd docs (currently works by incidental touch of the unit). Add a done-callback to the task created from `on_change(value)` so exceptions log via `logger.exception` instead of surfacing as "Task exception was never retrieved".
+6. **`tests/test_config.py`** — escape the `.` in `pytest.raises(match=".service")` regex so the assertion matches the literal substring.
+
+Explicitly rejected (and why, for the record):
+
+- Expose-to-LAN opt-in guard (#1 as originally proposed) — superseded by loopback default above.
+- Per-button toggle lock on `p2pool.py` — would defeat the deliberate "press harder to escalate" UX (`deactivating_escalate_signal`).
+- NaN/Inf guard in `config.py` float validators — defending against self-inflicted config errors; not worth the code.
+- `key_callback` generic threadpool dispatcher — wrong layer; fix #3 at the button.
+- Shared-secret / allowlist auth on `http_server.py` PUT — OnAir protocol has no such credential; adding one breaks interop for no benefit on a trusted LAN host.
+- `techContext.md` "Python 3.11+" fix — already resolved during the reflect-phase persistent-file reconciliation.

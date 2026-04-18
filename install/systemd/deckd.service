@@ -9,9 +9,6 @@ User=deckd
 Group=deckd
 WorkingDirectory=/opt/deckd/deckd
 
-# Ensure uv is on PATH (adjust if you install uv elsewhere, e.g. /root/.local/bin)
-Environment=PATH=/usr/local/bin:/usr/bin
-
 # Install: copy repo to WorkingDirectory, run `uv sync --frozen` there once.
 # Adjust --config to your real path.
 ExecStart=/usr/bin/uv run --directory /opt/deckd/deckd deckd --config /etc/deckd/deckd.toml

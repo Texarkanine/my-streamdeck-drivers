@@ -38,3 +38,21 @@ Register as a sign with the OnAir server; run an embedded HTTP listener for GET/
 2. Unit tests cover config loading, OnAir HTTP contract, and core button logic with mocks.
 3. Example systemd unit and README describe copy-edit-enable workflow.
 4. `images/README.md` lists required PNG names and 80×80 size; `images/` gitignored.
+
+## Rework — post-QA hardening
+
+Triaged PR feedback on the shipped `deckd-initial` build and accepted a targeted set of async-hygiene and correctness fixes. deckd and the OnAir server run on the **same host** on a trusted LAN — rework stays inside that operating envelope (no LAN-scale threat model, no defensive validation against self-edited config).
+
+### Rework Requirements
+
+1. Flask HTTP listener binds to `127.0.0.1` by default (co-located OnAir server, no LAN exposure).
+2. All blocking `requests` / `subprocess.run` calls are off the asyncio event loop and off the HID callback thread. No single HTTP stall can block D-Bus signal handling or further keypresses.
+3. `Manager.Subscribe()` is called once at startup so systemd `PropertiesChanged` signals are guaranteed to be delivered independent of incidental unit interaction.
+4. Asyncio tasks spawned from D-Bus signal handlers surface exceptions via the logger (no "Task exception was never retrieved" warnings).
+5. Existing tests continue to pass; the `.service` regex test is tightened to match the literal dot.
+
+### Rework Acceptance Criteria
+
+1. `uv run pytest` still green (16/16 + any new tests added during rework).
+2. Behavior on the target host (`kinglear`) unchanged for the happy path: P2Pool toggle, OnAir sign registration, OnAir PUT round-trip, deactivating blink + escalation all still work.
+3. No new runtime dependencies.
